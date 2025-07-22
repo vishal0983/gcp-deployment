@@ -1,9 +1,9 @@
 provider "google" {
-  project     = var.project_id
-  region      = var.region
-  zone        = var.zone
-  credentials = file("/home/your-username/.config/gcloud/application_default_credentials.json")
+  project = var.project_id
+  region  = var.region
+  zone    = var.zone
 }
+
 
 resource "google_compute_network" "vpc_network" {
   name                    = var.network_name
@@ -12,7 +12,7 @@ resource "google_compute_network" "vpc_network" {
 
 resource "google_compute_subnetwork" "subnet" {
   name          = var.subnet_name
-  ip_cidr_range = "10.10.1.0/24"
+  ip_cidr_range = "10.10.2.0/24"
   region        = var.region
   network       = google_compute_network.vpc_network.id
 }
