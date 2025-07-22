@@ -1,11 +1,3 @@
-provider "google" {
-  project = var.project_id
-  region  = var.region
-  zone    = var.zone
-  credentials = file("~/.config/gcloud/application_default_credentials.json")
-}
-
-
 resource "google_compute_network" "vpc_network" {
   name                    = var.network_name
   auto_create_subnetworks = false
@@ -33,5 +25,14 @@ resource "google_compute_instance" "vm_instance" {
     network    = google_compute_network.vpc_network.name
     subnetwork = google_compute_subnetwork.subnet.name
     access_config {}
+  }
+}
+resource "google_storage_bucket" "terraform_state" {
+  name          = "terraform-state-vishu"
+  location      = "US"
+  force_destroy = true
+
+  versioning {
+    enabled = true
   }
 }
