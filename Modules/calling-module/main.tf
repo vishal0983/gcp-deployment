@@ -16,23 +16,19 @@ resource "google_compute_instance" "vm_instance" {
   zone         = var.zone
 
   boot_disk {
-    initialize_params {
-      image = "ubuntu-os-cloud/ubuntu-2204-jammy-v20231010"
-    }
-  }
-
-  network_interface {
-    network    = google_compute_network.vpc_network.name
-    subnetwork = google_compute_subnetwork.subnet.name
-    access_config {}
+  initialize_params {
+    image = "ubuntu-os-cloud/ubuntu-2204-lts"
   }
 }
-resource "google_storage_bucket" "terraform_state" {
-  name          = "terraform-state-vishu"
-  location      = "US"
-  force_destroy = true
 
-  versioning {
-    enabled = true
+
+  network_interface {
+    network    = google_compute_network.vpc_network.id
+    subnetwork = google_compute_subnetwork.subnet.id
+    access_config {}
+  }
+
+  metadata = {
+    ssh-keys = "${var.ssh_username}:${file(var.ssh_pub_key_path)}"
   }
 }
