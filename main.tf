@@ -2,7 +2,7 @@ provider "google" {
   project     = var.project_id
   region      = var.region
   zone        = var.zone
-  credentials = file("~/.config/gcloud/application_default_credentials.json")
+  credentials = file("~/.config/gcloud/application_default_credentials.json") # Can be replaced with env var
 }
 
 resource "google_compute_network" "vpc_network" {
@@ -11,10 +11,11 @@ resource "google_compute_network" "vpc_network" {
 }
 
 resource "google_compute_subnetwork" "subnet" {
-  name          = var.subnet_name
-  ip_cidr_range = "10.0.0.0/24"
-  region        = var.region
-  network       = google_compute_network.vpc_network.id
+  name                     = var.subnet_name
+  ip_cidr_range            = "10.10.1.0/24"
+  region                   = var.region
+  network                  = google_compute_network.vpc_network.id
+  private_ip_google_access = true
 }
 
 resource "google_compute_instance" "vm_instance" {
@@ -24,13 +25,19 @@ resource "google_compute_instance" "vm_instance" {
 
   boot_disk {
     initialize_params {
-      image = "debian-cloud/debian-11"
+      image = "ubuntu-os-cloud/ubuntu-2204-jammy-v20231010"
     }
   }
 
   network_interface {
-    network    = google_compute_network.vpc_network.name
-    subnetwork = google_compute_subnetwork.subnet.name
-    access_config {} # for external IP
+    network    = google_compute_network.vpc_network.id
+    subnetwork = google_compute_subnetwork.subnet.id
+    access_config {}  # External IP
   }
+
+  metadata = {
+    ssh-keys = "your-username:${file("~/.ssh/id_rsa.pub")}"
+  }
+
+  tags = ["ssh", "web"]
 }
