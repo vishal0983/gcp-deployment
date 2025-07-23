@@ -32,3 +32,8 @@ variable "vm_name" {
   default     = "my-vm"
   description = "Name of the virtual machine"
 }
+variable "vm_machine_type" {}
+variable "vm_boot_disk_size_gb" {}
+variable "vm_boot_disk_type" {}
+variable "ssh_username" {}
+variable "ssh_pub_key_path" {}

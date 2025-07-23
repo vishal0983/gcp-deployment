@@ -1,43 +1,14 @@
-provider "google" {
-  project     = var.project_id
-  region      = var.region
-  zone        = var.zone
-  credentials = file("~/.config/gcloud/application_default_credentials.json") # Can be replaced with env var
+module "gcp_vm" {
+  source            = "./modules/gcp_vm"
+  project_id        = var.project_id
+  region            = var.region
+  zone              = var.zone
+  ssh_username      = var.ssh_username
+  ssh_pub_key_path  = var.ssh_pub_key_path
 }
 
-resource "google_compute_network" "vpc_network" {
-  name                    = var.network_name
-  auto_create_subnetworks = false
-}
-
-resource "google_compute_subnetwork" "subnet" {
-  name                     = var.subnet_name
-  ip_cidr_range            = "10.10.1.0/24"
-  region                   = var.region
-  network                  = google_compute_network.vpc_network.id
-  private_ip_google_access = true
-}
-
-resource "google_compute_instance" "vm_instance" {
-  name         = var.vm_name
-  machine_type = "e2-micro"
-  zone         = var.zone
-
-  boot_disk {
-    initialize_params {
-      image = "ubuntu-os-cloud/ubuntu-2204-jammy-v20231010"
-    }
-  }
-
-  network_interface {
-    network    = google_compute_network.vpc_network.id
-    subnetwork = google_compute_subnetwork.subnet.id
-    access_config {}  # External IP
-  }
-
-  metadata = {
-    ssh-keys = "your-username:${file("~/.ssh/id_rsa.pub")}"
-  }
-
-  tags = ["ssh", "web"]
+module "gke" {
+  source     = "./modules/gke"
+  project_id = var.project_id
+  region     = var.region
 }
